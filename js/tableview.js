@@ -1,5 +1,5 @@
 "use strict";
-const toDoObj = []
+let toDoObj = []
 function addNewList(){
   var addNewList = document.getElementById("myForm")
   var newListBtn = document.getElementById("newlist")
@@ -39,6 +39,7 @@ function createList(){
   listName.value = ""
   closeForm()
   tableCreate()
+  window.scrollTo(0, window.innerHeight);
 }
 
 function tableCreate() {
@@ -87,15 +88,28 @@ function tableCreate() {
 }
 
 function selectList(){
-  var buttonList = document.getElementsByClassName("listButton")
+  var buttonList = document.getElementsByClassName("listButton");
   for (var i = 0; i < buttonList.length; i++) {
+    if (buttonList[i].childNodes.length == 2) {
+      document.getElementsByTagName("footer")[0].style.display = "none";
+      buttonList[i].removeChild(buttonList[i].lastChild)
+      continue
+    }
+    document.getElementsByTagName("footer")[0].style.display = "flex";
     var cord = buttonList[i].getBoundingClientRect();
-    console.log(cord)
     var checkbox = document.createElement("INPUT");
     checkbox.setAttribute("type", "checkbox");
     checkbox.setAttribute("class", "chkbox");
-    checkbox.style.left = (cord.width/4) +"px";
-    checkbox.style.top = (cord.height/3)+"px";
+    checkbox.style.top = (cord.bottom/4) - 10+"px";
     buttonList[i].appendChild(checkbox);
   }
+}
+
+function deleteSelected(){
+  var checkList = document.getElementsByClassName("chkbox");
+  toDoObj = toDoObj.filter(function(value, index, arr){
+    return !checkList[index].checked;
+  });
+  selectList()
+  tableCreate()
 }

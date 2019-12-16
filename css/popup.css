@@ -48,6 +48,20 @@
 .chkbox {
   position: absolute;
   zoom: 4;
-  /* left: 45px;
-  top: 70px; */
+}
+
+footer {
+  display: none;
+  justify-content: space-between;
+  padding: 5px 3%;
+  background-color: #24252a;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.footright{
+  justify-content: flex-end;
 }

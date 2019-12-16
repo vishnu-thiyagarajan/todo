@@ -24,16 +24,22 @@
                 <li><a href="#">Scheduled</a></li>
             </ul>
         </nav>
-        <nav>
-            <a class="cta" onclick = "selectList()">
-                <div class="check icon"></div>
-            </a>
+        <div class="navright">
             <a class="cta" href="#">
                 <div class = "search icon"></div>
             </a>
-        </nav>
+            <a class="cta" onclick = "selectList()">
+                <div class="check icon"></div>
+            </a>
+        </div>
     </header>
     <table id="tbl"></table>
+    <footer>
+        <a class="cta" id="rename">Rename</a>
+        <div class="footright">
+            <a class="cta" onclick="deleteSelected()" id="delete">Delete</a>
+        </div>
+    </footer>
 </body>
 <script type="text/javascript" src="js/tableview.js"></script>
 </html>
