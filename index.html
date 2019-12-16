@@ -3,11 +3,20 @@
 <head>
     <title>To Do</title>
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/popup.css">
 </head>
 
-<body onresize="tableCreate()">
+<body onresize="tableCreate()" onload="tableCreate()">
     <header>
-        <a class="cta">New List</a>
+        <a class="cta" onclick = "addNewList()" id='newlist'>New List</a>
+        <div class="form-popup" id="myForm">
+            <form class="form-container">
+              <label>List Name</label>
+              <input type="text" name="listname" oninput="enableCrt()" id="listname">
+              <button type="button" class="btn" onclick="closeForm()">Close</button>
+              <button type="button" class="btn" onclick="createList()" id="crtlist">Create</button>
+            </form>
+          </div>
         <nav>
             <ul class="nav__links">
                 <li><a href="#">Lists</a></li>
@@ -16,15 +25,15 @@
             </ul>
         </nav>
         <nav>
-            <a class="cta" href="#">
+            <a class="cta" onclick = "selectList()">
                 <div class="check icon"></div>
             </a>
             <a class="cta" href="#">
-                <div class="search icon"></div>
+                <div class = "search icon"></div>
             </a>
         </nav>
     </header>
-    <table></table>
+    <table id="tbl"></table>
 </body>
 <script type="text/javascript" src="js/tableview.js"></script>
 </html>

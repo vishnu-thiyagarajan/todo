@@ -1,0 +1,53 @@
+.form-popup {
+  background-color: #f1f1f1;
+  display: none;
+  position: absolute;
+  border: 8px solid #f1f1f1;
+  border-radius: .4em;
+  box-shadow: 3px 3px 3px 3px #acaaaa;
+}
+
+.form-popup:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 24%;
+	width: 0;
+	height: 0;
+	border: 27px solid transparent;
+	border-bottom-color: #f1f1f1;
+	border-top: 0;
+	margin-left: -27px;
+	margin-top: -27px;
+}
+
+.form-popup label{
+  opacity: 0.5;
+}
+
+.form-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid rgb(231, 159, 159);
+  border-radius: 4px;
+  background: #f1f1f1;
+  opacity: 1;
+}
+
+.form-container .btn {
+  float: left;
+  color: black;
+  padding: 16px 20px;
+  border: none;
+  width: 50%;
+  height: 10%;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chkbox {
+  position: absolute;
+  zoom: 4;
+  /* left: 45px;
+  top: 70px; */
+}

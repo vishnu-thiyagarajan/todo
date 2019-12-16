@@ -83,7 +83,7 @@ header {
   transform: rotate(-45deg);
 }
 
-button {
+.listButton {
   color: black;
   border: none;
   padding: 15px 32px;
