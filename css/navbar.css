@@ -25,6 +25,7 @@ header {
 .nav__links {
   list-style: none;
   display: flex;
+  cursor: pointer;
 }
 
 .nav__links li {
@@ -33,10 +34,6 @@ header {
 
 .nav__links li a {
   transition: all 0.3s ease 0s;
-}
-
-.nav__links li a:hover {
-  color: #0088a9;
 }
 
 .navright{
