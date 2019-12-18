@@ -1,142 +1,101 @@
 "use strict";
-let toDoObj = []
-let checkedCount = 0
-let lastCheckEvent;
+let toDoObj = [{1:{"keykeykeykey": "value", "key1keykey": "value1"}}, {2:{"key": "value", "key1": "value1"}}]
+let selectState = true;
+let searchState = true;
+let checkedCount = 0;
 function addNewList(){
   var addNewList = document.getElementById("myForm")
   var newListBtn = document.getElementById("newlist")
-  document.getElementById("listname").setAttribute("autofocus","autofocus");
+  document.getElementById("listname").focus();
   var newListBtnPos = newListBtn.getBoundingClientRect();
-  disable(document.getElementById("crtlist"))
+  document.getElementById("crtlist").disabled = true;
   addNewList.style.display = "block";
-  addNewList.style.opacity = "1";
-  addNewList.style.top = (newListBtnPos.x + (newListBtnPos.height/3))+"px";
-  addNewList.style.left = (newListBtnPos.y)+"px";
-}
-
-function disable(btn){
-  btn.style.color = "grey";
-  btn.disabled = true;
-}
-
-function enable(btn){
-  btn.style.color = "black";
-  btn.disabled = false;
+  addNewList.style.top = (newListBtnPos.bottom + newListBtnPos.height/2)+"px";
+  addNewList.style.left = (newListBtnPos.left)+"px";
 }
 
 function enableCrt(){
   var listName = document.getElementById("listname")
   var crtListBtn = document.getElementById("crtlist")
-  if (listName.value=="") return disable(crtListBtn)
-  enable(crtListBtn)
+  crtListBtn.disabled = listName.value=="" ? true :false;
 }
 
 function closeForm(){
   document.getElementById("myForm").style.display = "none";
-  document.getElementById("renameForm").style.display = "none";
-  // window.removeEventListener('click', closePopup(event));
+  var listName = document.getElementById("listname")
+  listName.focus();
+  listName.value = ""
 }
 
 function createList(){
-  var listName = document.getElementsByName("listname")[0]
+  var listName = document.getElementById("listname")
   toDoObj.push({[listName.value]:{}});
   listName.value = ""
   closeForm()
-  tableCreate()
+  contentList()
+  event.preventDefault();
   window.scrollTo(0, window.innerHeight);
 }
 
-function tableCreate() {
-  var countOfList = 0
-  var noOfElements = toDoObj.length;
-  var tbl = document.getElementById("tbl");
-  closeForm();
-  if (tbl) tbl.remove();
-  var body = document.getElementsByTagName("body")[0];
-  var elemInRow = parseInt(window.innerWidth / 200) - 1;
-  noOfElements = noOfElements < elemInRow ? elemInRow : noOfElements
-  tbl = document.createElement("table");
-  tbl.setAttribute("id","tbl")
-  tbl.style.width = "100%";
-  var tbdy = document.createElement("tbody");
-  for (var i = 0; noOfElements > 0; i++) {
-    var tr = document.createElement("tr");
-    for (var j = 0; j < elemInRow; j++) {
-      var td = document.createElement("td");
-      td.width = "200px"
-      var bt = document.createElement("button");
-      bt.setAttribute("class","listButton")
-      bt.style.backgroundColor = " #ffffff";
-      if (noOfElements) {
-        var nameOfList = toDoObj[countOfList] ? Object.keys(toDoObj[countOfList])[0] : ""
-        td.align = "center";
-        td.style.border = "40px solid white";
-        //   bt.style.backgroundColor = "#336699";
-        //   bt.style.backgroundColor = "#b3cce6";
-        bt.style.backgroundColor = "#6699cc";
-        bt.innerHTML = "no tasks";
-        if (nameOfList) td.appendChild(bt);
-        td.appendChild(document.createElement("br"));
-        var paraNameOfList = document.createElement("p");
-        paraNameOfList.appendChild(document.createTextNode(nameOfList));
-        countOfList += 1;
-        noOfElements -= 1;
-        paraNameOfList.style.font = "bold 17px sans-serif";
-        if (nameOfList) td.appendChild(paraNameOfList);
-      }
-      tr.appendChild(td);
-    }
-    tbdy.appendChild(tr);
+function contentList(obj= toDoObj){
+  let contentList = document.getElementById("contentList")
+  contentList.innerHTML = "";
+  for (let elements of obj){
+    var item = document.createElement("div")
+    var chckbox = document.createElement("input")
+    var para = document.createElement("p")
+    var overflow = document.createElement("div")
+    chckbox.setAttribute("type", "checkbox")
+    chckbox.setAttribute("onclick", "countCheck(event)")
+    item.setAttribute("class", "flex-list item")
+    overflow.setAttribute("class", "overflow")
+    para.innerText = Object.keys(elements)[0]
+    overflow.innerHTML= Object.keys(elements[para.innerText]).join("<br>");
+    item.setAttribute("onclick","openList(event)")
+    // console.log(Object.keys(elements[para.innerHTML]).join("<br>"))
+    // item.innerHTML = Object.keys(elements[0]).join("<br>")
+    item.appendChild(overflow)
+    item.appendChild(chckbox)
+    item.appendChild(para)
+    contentList.appendChild(item)
   }
-  tbl.appendChild(tbdy);
-  body.appendChild(tbl);
 }
 
 function selectList(){
-  var buttonList = document.getElementsByClassName("listButton");
   checkedCount = 0
-  for (var i = 0; i < buttonList.length; i++) {
-    if (buttonList[i].childNodes.length == 2) {
-      document.getElementsByTagName("footer")[0].style.display = "none";
-      buttonList[i].removeChild(buttonList[i].lastChild)
-      continue
-    }
-    document.getElementsByTagName("footer")[0].style.display = "flex";
-    document.getElementById("delete").className = "ctadisable";
-    document.getElementById("rename").className = "ctadisable"
-    var cord = buttonList[i].getBoundingClientRect();
-    var checkbox = document.createElement("INPUT");
-    checkbox.setAttribute("type", "checkbox");
-    checkbox.setAttribute("class", "chkbox");
-    checkbox.setAttribute("onchange", "countCheck(event)");
-    checkbox.style.top = (cord.bottom/4) - 10+"px";
-    buttonList[i].appendChild(checkbox);
+  document.getElementById("bottombar").style.display = selectState ? "flex" : "none";
+  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  for (let element of checkboxes){
+    element.style.display = selectState ? "inline-block" : "none";
   }
+  selectState = selectState ? false : true;
 }
 
 function deleteSelected(){
-  if (document.getElementById("delete").className == "ctadisable") return
-  var checkList = document.getElementsByClassName("chkbox");
+  var checkboxes = document.querySelectorAll("input[type=checkbox]");
   toDoObj = toDoObj.filter(function(value, index, arr){
-    return !checkList[index].checked;
+  return !checkboxes[index].checked;
   });
-  selectList()
-  tableCreate()
+  selectList();
+  contentList();
 }
 
 function countCheck(event){
-  if (event.target.checked) {lastCheckEvent = event; checkedCount += 1}
+  if (event.target.checked)  checkedCount += 1
   if (!event.target.checked) checkedCount -= 1
-  if (checkedCount == 1) document.getElementById("rename").setAttribute("class","cta")
-  if (checkedCount != 1) document.getElementById("rename").setAttribute("class","ctadisable")
-  if (checkedCount == 0) document.getElementById("delete").setAttribute("class","ctadisable")
-  if (checkedCount > 0) document.getElementById("delete").setAttribute("class","cta")
+  if (checkedCount == 1) document.getElementById("rename").disabled = false
+  if (checkedCount != 1) document.getElementById("rename").disabled = true
+  if (checkedCount == 0) document.getElementById("delete").disabled = true
+  if (checkedCount > 0) document.getElementById("delete").disabled = false
 }
 
 function renameSelected(){
-  if (document.getElementById("rename").className == "ctadisable") return
   var renameForm = document.getElementById("renameForm")
-  var elemToBeRenamed = lastCheckEvent.target.parentNode.parentNode.getElementsByTagName("p")[0]
+  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  for (var i=0;i<checkboxes.length;i++){
+        if (checkboxes[i].checked) break
+  }
+  var elemToBeRenamed = checkboxes[i].parentNode.lastChild;
   var renamePopupPos = elemToBeRenamed.getBoundingClientRect();
   renameForm.style.display = "block";
   renameForm.style.opacity = "1";
@@ -147,8 +106,8 @@ function renameSelected(){
   newName.focus();
 }
 
-function rename(){
-  var checkList = document.getElementsByClassName("chkbox");
+function rename(event){
+  var checkList = document.querySelectorAll("input[type=checkbox]");
   for (var i=0;i<checkList.length;i++){
     if (checkList[i].checked) break
   }
@@ -156,8 +115,10 @@ function rename(){
   var oldName = Object.keys(toDoObj[i])[0]
   toDoObj[i][newName] = Object.values(toDoObj[i])[0]
   delete toDoObj[i][oldName];
+  document.getElementById('renameForm').style.display = "none";
   selectList();
-  tableCreate();
+  contentList();
+  event.preventDefault();
 }
 
 window.addEventListener('click', function(e){
@@ -168,22 +129,26 @@ window.addEventListener('click', function(e){
 },true)
 
 function highlight(event){
-  console.log(event.target.parentNode.parentNode.childNodes)
-  let nodes = event.target.parentNode.parentNode.childNodes;
+  let nodes = event.target.parentNode.childNodes;
   nodes.forEach(element => {
-    if (element.hasChildNodes()) element.firstChild.style.color= "white"
+    if (element.tagName == "BUTTON")element.removeAttribute("class");
   });
-  event.target.style.color="#0088a9";
+  event.target.setAttribute("class","active");
 }
 
 function attachSearch(){
-  const searchBar = document.getElementById("searchBar")
-  searchBar.style.display = searchBar.style.display == "flex" ? "none" : "flex"
-  if (searchBar.style.display == "none") tableCreate()
+  let searchBar = document.getElementById("searchBar")
+  searchBar.style.display = (searchBar.style.display == "flex") ? "none" : "flex";
+  if (searchBar.style.display == "none") contentList()
   if (searchBar.style.display == "flex") document.getElementById("srchBar").focus();
 }
 
 function searchList(event){
   if (event.keyCode !== 13) return
-  
+  var srchValue = document.getElementById("srchBar").value
+  if (srchValue == "") {contentList(); return}
+  var obj = toDoObj.filter(function(value, index, arr){
+    return Object.keys(value)[0].includes(srchValue);
+    });
+  contentList(obj);
 }

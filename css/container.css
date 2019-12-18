@@ -1,0 +1,50 @@
+.container {
+    padding-top: 45px;
+    padding-bottom: 55px;
+    margin: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.flex-list {
+    color: black;
+    font-size: 1.5rem;
+    padding: 1rem;
+    text-align: center;
+}
+.item {
+    background-color:rgb(102, 153, 204);
+    justify-content: space-around;
+    color: white;
+    margin: 10px;
+    height: 200px;
+    width: 120px;
+    text-align: left;
+    font-size: 18px;
+    margin-bottom: 30px;
+    position: relative;
+}
+.overflow{
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    width: 130px;
+    position: absolute;
+}
+.item input[type="checkbox"]{
+    display: none;
+    position: absolute;
+    width: 130px;
+    height: 50px;
+    top: 190px;
+    left:60px;
+    z-index: 1;
+}
+
+.item p{
+    position: absolute;
+    text-align: center;
+    width: 120px;
+    color: black;
+    top: 220px;
+    font-weight: bold;
+}
