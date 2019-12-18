@@ -87,6 +87,7 @@ function countCheck(event){
   if (checkedCount != 1) document.getElementById("rename").disabled = true
   if (checkedCount == 0) document.getElementById("delete").disabled = true
   if (checkedCount > 0) document.getElementById("delete").disabled = false
+  event.stopPropagation();
 }
 
 function renameSelected(){
@@ -98,7 +99,7 @@ function renameSelected(){
   var elemToBeRenamed = checkboxes[i].parentNode.lastChild;
   var renamePopupPos = elemToBeRenamed.getBoundingClientRect();
   renameForm.style.display = "block";
-  renameForm.style.opacity = "1";
+  // renameForm.style.opacity = "1";
   renameForm.style.top = (renamePopupPos.bottom + renamePopupPos.height)+"px";
   renameForm.style.left = (renamePopupPos.left + (renamePopupPos.width/5))+"px";
   var newName = document.getElementById("newName")
@@ -113,8 +114,10 @@ function rename(event){
   }
   var newName = document.getElementById("newName").value
   var oldName = Object.keys(toDoObj[i])[0]
-  toDoObj[i][newName] = Object.values(toDoObj[i])[0]
-  delete toDoObj[i][oldName];
+  if (oldName != newName){
+    toDoObj[i][newName] = Object.values(toDoObj[i])[0]
+    delete toDoObj[i][oldName];
+  }
   document.getElementById('renameForm').style.display = "none";
   selectList();
   contentList();
