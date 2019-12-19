@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="css/popup.css">
 </head>
 
-<body>
-    <div class="navbar">
+<body onload="contentList()">
+    <div class="navbar" id="navbar">
         <button class="flex-item left" onclick = "addNewList()" id="newlist" >New List</button>
         <div class="form-popup" id="myForm">
             <div class="form-container">
@@ -28,6 +28,18 @@
             <button class="flex-item" onclick="selectList()">Select</button>
         </div>
     </div>
+    <div class="navbar" id="tasknavbar">
+        <button class="flex-item left" onclick = "goHome()" id="back" >Back</button>
+        <!-- <div class="form-popup" id="myForm">
+            <div class="form-container">
+              <label>List Name</label>
+              <input type="text" oninput="enableCrt()" id="listname" autofocus>
+              <button class="btn" onclick="closeForm()">Close</button>
+              <button class="btn" onclick="createList(event)" id="crtlist">Create</button>
+            </div>
+          </div> -->
+        <button class="flex-item right" onclick="clearCompleted()">Clear Completed</button>
+    </div>
     <div id="searchBar">
         <input id="srchBar" type="search" placeholder="Search..." onkeyup="searchList(event)" autofocus/>
     </div>
@@ -42,13 +54,23 @@
         <div class="flex-list item">Item 8<input type="checkbox"/></div>
         <div class="flex-list item">Item 9<input type="checkbox"/></div> -->
     </div>
+    <div class="taskcontainer" id="taskcontainer">
+        <!-- <div class="taskflex-item taskitem"><input type="checkbox"/>Item 1</div>
+        <div class="taskflex-item taskitem"><input type="checkbox"/>Item 2</div>
+        <div class="taskflex-item taskitem"><input type="checkbox"/>Item 3</div>
+        <div class="taskflex-item taskitem"><input type="checkbox"/>Item 4</div> -->
+        <div class="taskflex-item taskitem"><button>add</button>New Task</div>
+    </div>
     <div class="form-popup" id="renameForm">
         <form class="form-container">
           <label>Rename</label><br>
           <input type="text" name="newName" id="newName">
           <button class="btn" onclick="rename(event)" id="renameBtn">rename</button>
         </form>
-      </div>
+    </div>
+    <div class="bottomBar" id="donetaskbar">
+        <button class="flex-item left" onclick="showDoneTask()" id="showDone"></button>
+    </div>
     <div class="bottomBar" id="bottombar">
         <button class="flex-item left" onclick="renameSelected()" id="rename">Rename</button>
         <button class="flex-item right" onclick="deleteSelected()" id="delete">Delete</button>

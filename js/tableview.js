@@ -1,7 +1,8 @@
 "use strict";
-let toDoObj = [{1:{"keykeykeykey": "value", "key1keykey": "value1"}}, {2:{"key": "value", "key1": "value1"}}]
+let toDoObj = [{1:{"keykeykeykey": [false,"notes text here","high","2019-12-19"], "key1keykey": [false,"notes text here","2019-12-19","high"]}}, {2:{"key": [], "key1": []}}]
 let selectState = true;
-let searchState = true;
+let showAll = false;
+let currentList,currentListName;
 let checkedCount = 0;
 function addNewList(){
   var addNewList = document.getElementById("myForm")
@@ -40,7 +41,7 @@ function createList(){
 function contentList(obj= toDoObj){
   let contentList = document.getElementById("contentList")
   contentList.innerHTML = "";
-  for (let elements of obj){
+  for (let [index,elements] of obj.entries()){
     var item = document.createElement("div")
     var chckbox = document.createElement("input")
     var para = document.createElement("p")
@@ -49,11 +50,11 @@ function contentList(obj= toDoObj){
     chckbox.setAttribute("onclick", "countCheck(event)")
     item.setAttribute("class", "flex-list item")
     overflow.setAttribute("class", "overflow")
+    overflow.setAttribute("id",""+index)
     para.innerText = Object.keys(elements)[0]
     overflow.innerHTML= Object.keys(elements[para.innerText]).join("<br>");
     item.setAttribute("onclick","openList(event)")
-    // console.log(Object.keys(elements[para.innerHTML]).join("<br>"))
-    // item.innerHTML = Object.keys(elements[0]).join("<br>")
+    item.setAttribute("id",""+index)
     item.appendChild(overflow)
     item.appendChild(chckbox)
     item.appendChild(para)
@@ -64,7 +65,7 @@ function contentList(obj= toDoObj){
 function selectList(){
   checkedCount = 0
   document.getElementById("bottombar").style.display = selectState ? "flex" : "none";
-  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  var checkboxes = document.querySelectorAll("#contentList input[type=checkbox]");
   for (let element of checkboxes){
     element.style.display = selectState ? "inline-block" : "none";
   }
@@ -72,7 +73,7 @@ function selectList(){
 }
 
 function deleteSelected(){
-  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  var checkboxes = document.querySelectorAll("#contentList input[type=checkbox]");
   toDoObj = toDoObj.filter(function(value, index, arr){
   return !checkboxes[index].checked;
   });
@@ -92,14 +93,13 @@ function countCheck(event){
 
 function renameSelected(){
   var renameForm = document.getElementById("renameForm")
-  var checkboxes = document.querySelectorAll("input[type=checkbox]");
+  var checkboxes = document.querySelectorAll("#contentList input[type=checkbox]");
   for (var i=0;i<checkboxes.length;i++){
         if (checkboxes[i].checked) break
   }
   var elemToBeRenamed = checkboxes[i].parentNode.lastChild;
   var renamePopupPos = elemToBeRenamed.getBoundingClientRect();
   renameForm.style.display = "block";
-  // renameForm.style.opacity = "1";
   renameForm.style.top = (renamePopupPos.bottom + renamePopupPos.height)+"px";
   renameForm.style.left = (renamePopupPos.left + (renamePopupPos.width/5))+"px";
   var newName = document.getElementById("newName")
@@ -108,7 +108,7 @@ function renameSelected(){
 }
 
 function rename(event){
-  var checkList = document.querySelectorAll("input[type=checkbox]");
+  var checkList = document.querySelectorAll("#contentList input[type=checkbox]");
   for (var i=0;i<checkList.length;i++){
     if (checkList[i].checked) break
   }
@@ -154,4 +154,95 @@ function searchList(event){
     return Object.keys(value)[0].includes(srchValue);
     });
   contentList(obj);
+}
+
+function hideList(){
+  document.getElementById("contentList").style.display = "none";
+  document.getElementById("bottombar").style.display = "none";
+  document.getElementById("navbar").style.display = "none";
+  document.getElementById("searchBar").style.display = "none";
+  document.getElementById("tasknavbar").style.display = "flex";
+}
+
+function openList(event,targetid){
+  if (event) {currentList = event.target.id; hideList()} 
+  if (targetid) currentList = targetid
+  currentListName = Object.keys(toDoObj[currentList])[0]
+  let taskObj = Object.values(toDoObj[currentList])[0]
+  let taskcontainer = document.getElementById("taskcontainer")
+  taskcontainer.innerHTML = ""
+  taskcontainer.style.display = "flex";
+  let showDone = false
+  let countDone = 0
+  Object.keys(taskObj).forEach(task =>{
+    let item = document.createElement("div")
+    item.setAttribute("class", "taskflex-item taskitem")
+    let check = document.createElement("input")
+    check.setAttribute("type", "checkbox")
+    check.checked = taskObj[task][0]
+    check.setAttribute("onclick", "stikeText(event)")
+    item.appendChild(check)
+    item.appendChild(document.createTextNode(task))
+    taskcontainer.appendChild(item)
+    if (check.checked) {showDone = true; countDone++ }
+    item.style.display = check.checked ? "none" : "flex";
+    if (showAll) item.style.display = "flex";
+  })
+  document.getElementById("donetaskbar").style.display = showDone ? "flex" : "none";
+  document.getElementById("showDone").innerHTML = 'Done ('+ countDone + ')'
+  let item = document.createElement("div")
+    item.setAttribute("class", "taskflex-item taskitem")
+    let btn = document.createElement("button")
+    btn.setAttribute("onclick", "addTask(event)")
+    btn.innerHTML = 'Add';
+    item.appendChild(btn)
+    item.appendChild(document.createTextNode("New task"))
+    taskcontainer.appendChild(item)
+}
+
+function goHome(){
+  document.getElementById("contentList").style.display = "flex";
+  document.getElementById("navbar").style.display = "flex";
+  document.getElementById("tasknavbar").style.display = "none";
+  document.getElementById("taskcontainer").style.display = "none";
+  document.getElementById("donetaskbar").style.display = "none";
+  contentList()
+}
+
+function addTask(event){
+  let addnew = event.target.parentNode
+  addnew.removeChild(addnew.lastChild)
+  let text = document.createElement("input")
+  text.setAttribute("type","text")
+  text.setAttribute("onkeyup","appendTask(event)")
+  addnew.appendChild(text)
+  text.focus();
+}
+
+function appendTask(event){
+  if (event.keyCode !== 13) return
+  let newTask = event.target.value
+  if (newTask == "") return
+  toDoObj[currentList][currentListName][newTask] = []
+  openList(undefined,currentList)
+}
+
+function stikeText(event){
+  let chkbox = event.target
+  let key = event.target.parentNode.lastChild.textContent
+  toDoObj[currentList][currentListName][key][0] = chkbox.checked
+  openList(undefined,currentList)
+}
+
+function clearCompleted(){
+  Object.entries(toDoObj[currentList][currentListName]).forEach(
+    ([key, value]) => {
+      if (value[0] == true) delete toDoObj[currentList][currentListName][key]
+    })
+  openList(undefined,currentList)
+}
+
+function showDoneTask(){
+  showAll = showAll ? false : true;
+  openList(undefined,currentList)
 }

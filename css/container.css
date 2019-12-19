@@ -48,3 +48,41 @@
     top: 220px;
     font-weight: bold;
 }
+
+.taskcontainer {
+    padding-top: 45px;
+    padding-bottom: 55px;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.taskflex-item {
+    border: 2px solid white;
+    color: white;
+    font-size: 1.5rem;
+    text-align: left;
+    padding:0px;
+}
+
+.taskitem {
+    background-color:rgb(102, 153, 204);
+}
+
+.taskitem button{
+    height:40px;
+    width:40px;
+}
+
+.taskitem input[type="checkbox"]{
+    height:40px;
+    width:40px;
+    margin-right: 10px;
+}
+
+.taskitem input[type="text"]{
+    height:30px;
+    width:94%;
+    font-size: 15px;
+    margin-right: 10px;
+}
