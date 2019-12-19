@@ -55,11 +55,33 @@
         <div class="flex-list item">Item 9<input type="checkbox"/></div> -->
     </div>
     <div class="taskcontainer" id="taskcontainer">
-        <!-- <div class="taskflex-item taskitem"><input type="checkbox"/>Item 1</div>
-        <div class="taskflex-item taskitem"><input type="checkbox"/>Item 2</div>
+        <!-- <div class="taskflex-item taskitem"><input type="checkbox"/>Item 1</div> -->
+        <!-- <div class="taskflex-item taskitem"><input type="checkbox"/>Item 2</div>
         <div class="taskflex-item taskitem"><input type="checkbox"/>Item 3</div>
         <div class="taskflex-item taskitem"><input type="checkbox"/>Item 4</div> -->
-        <div class="taskflex-item taskitem"><button>add</button>New Task</div>
+        <!-- <div class="taskflex-item taskitem"><button>add</button>New Task</div> -->
+        <div class='taskflex-item' id="detailitem">
+            <div class='row'>
+                <div class='column'></div> 
+              <div class='column'>
+                Notes:
+                <textarea rows="8" cols="50"></textarea>
+              </div>
+              <div class='column'>
+                Priority:
+                <select>
+                    <option value="0" selected="selected">None</option>
+                    <option value="1">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                  </select>
+                Due date:
+                <input type="date" name="bday">
+                <button onclick="deleteTask()">Delete</button>
+              </div>
+              <div class='column'><button onclick="savedetails()" id="close">x</button></div>
+            </div>
+          </div>
     </div>
     <div class="form-popup" id="renameForm">
         <form class="form-container">
