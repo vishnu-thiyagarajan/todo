@@ -1,17 +1,24 @@
 "use strict";
 let toDoObj = [
   {
-    1: {
-      keykeykeykey: [false, "notes text here", 3, "2019-12-19"],
-      key1keykey: [false, "note text here", 2, "2019-12-19"]
+    Personal: {
+      Painting: [false, "Do a Master Piece", 3, "2019-12-19"],
+      Yoga: [false, "Daily once", 2, "2019-12-20"],
+      Meditation: [false, "5 Mins a day", 3, "2019-12-21"]
     }
   },
-  { 2: { key: [], key1: [] } }
+  {
+    Professional: {
+      "Do ToDo": [false, "refactor code", 3, "2019-12-20"],
+      "Learn css flex box": [false, "do hands on", 3, "2019-12-16"]
+    }
+  }
 ];
 let selectState = true;
 let showAll = false;
-let currentList, currentListName,currentTask;
+let currentList, currentListName, currentTask;
 let checkedCount = 0;
+let detailitem = document.getElementById("detailitem");
 function addNewList() {
   var addNewList = document.getElementById("myForm");
   var newListBtn = document.getElementById("newlist");
@@ -61,7 +68,8 @@ function contentList(obj = toDoObj) {
     overflow.setAttribute("id", "" + index);
     para.innerText = Object.keys(elements)[0];
     overflow.innerHTML = Object.keys(elements[para.innerText]).join("<br>");
-    if (Object.keys(elements[para.innerText]).length == 0) overflow.innerHTML = "no tasks"
+    if (Object.keys(elements[para.innerText]).length == 0)
+      overflow.innerHTML = "no tasks";
     item.setAttribute("onclick", "openList(event)");
     item.setAttribute("id", "" + index);
     item.appendChild(overflow);
@@ -162,6 +170,7 @@ function highlight(event) {
     if (element.tagName == "BUTTON") element.removeAttribute("class");
   });
   event.target.setAttribute("class", "active");
+  filter(event.target.innerText);
 }
 
 function attachSearch() {
@@ -202,10 +211,9 @@ function openList(event, targetid) {
   currentListName = Object.keys(toDoObj[currentList])[0];
   let taskObj = Object.values(toDoObj[currentList])[0];
   let taskcontainer = document.getElementById("taskcontainer");
-  let hide = document.getElementById("detailitem");
   taskcontainer.innerHTML = "";
-  hide.style.display = "none";
-  taskcontainer.appendChild(hide);
+  detailitem.style.display = "none";
+  taskcontainer.appendChild(detailitem);
   taskcontainer.style.display = "flex";
   let showDone = false;
   let countDone = 0;
@@ -264,7 +272,7 @@ function appendTask(event) {
   if (event.keyCode !== 13) return;
   let newTask = event.target.value;
   if (newTask == "") return;
-  toDoObj[currentList][currentListName][newTask] = [false,"",0,""];
+  toDoObj[currentList][currentListName][newTask] = [false, "", 0, ""];
   openList(undefined, currentList);
 }
 
@@ -290,25 +298,100 @@ function showDoneTask() {
   openList(undefined, currentList);
 }
 
-function expand(event){
-  let details = document.getElementById("detailitem")
-  details.style.display="flex";
-  currentTask = event.target.lastChild.textContent; 
-  event.target.insertAdjacentElement("afterend", details);
-  document.querySelectorAll("#detailitem textarea")[0].value = toDoObj[currentList][currentListName][currentTask][1]
-  document.querySelectorAll("#detailitem select")[0].value = toDoObj[currentList][currentListName][currentTask][2]
-  document.querySelectorAll('#detailitem input[type="date"]')[0].value = toDoObj[currentList][currentListName][currentTask][3]
+function expand(event, rename = true, value) {
+  currentTask = event.target.textContent;
+  if (rename) {
+    let addnew = event.target;
+    addnew.removeChild(addnew.lastChild);
+    let text = document.createElement("input");
+    text.setAttribute("type", "text");
+    addnew.appendChild(text);
+    text.value = currentTask;
+    text.focus();
+  }
+  detailitem.style.display = "flex";
+  event.target.insertAdjacentElement("afterend", detailitem);
+  document.querySelectorAll("#detailitem textarea")[0].value = value
+    ? value[1]
+    : toDoObj[currentList][currentListName][currentTask][1];
+  document.querySelectorAll("#detailitem select")[0].value = value
+    ? value[2]
+    : toDoObj[currentList][currentListName][currentTask][2];
+  document.querySelectorAll('#detailitem input[type="date"]')[0].value = value
+    ? value[3]
+    : toDoObj[currentList][currentListName][currentTask][3];
 }
 
-function savedetails(){
-  toDoObj[currentList][currentListName][currentTask][1] = document.querySelectorAll("#detailitem textarea")[0].value
-  toDoObj[currentList][currentListName][currentTask][2] = document.querySelectorAll("#detailitem select")[0].value
-  toDoObj[currentList][currentListName][currentTask][3] = document.querySelectorAll('#detailitem input[type="date"]')[0].value
-  let details = document.getElementById("detailitem")
-  details.style.display="none";
+function savedetails(event) {
+  toDoObj[currentList][currentListName][
+    currentTask
+  ][1] = document.querySelectorAll("#detailitem textarea")[0].value;
+  toDoObj[currentList][currentListName][
+    currentTask
+  ][2] = document.querySelectorAll("#detailitem select")[0].value;
+  toDoObj[currentList][currentListName][
+    currentTask
+  ][3] = document.querySelectorAll('#detailitem input[type="date"]')[0].value;
+  let value = toDoObj[currentList][currentListName][currentTask];
+  delete toDoObj[currentList][currentListName][currentTask];
+  let renameText = document.querySelectorAll(".taskitem input[type=text]")[0];
+  currentTask = renameText.value;
+  toDoObj[currentList][currentListName][currentTask] = value;
+  let details = document.getElementById("detailitem");
+  details.style.display = "none";
+  let taskbar = renameText.parentNode;
+  taskbar.removeChild(renameText);
+  taskbar.appendChild(document.createTextNode(currentTask));
 }
 
-function deleteTask(){
-  delete toDoObj[currentList][currentListName][currentTask]
-  openList(undefined, currentList)
+function deleteTask() {
+  delete toDoObj[currentList][currentListName][currentTask];
+  openList(undefined, currentList);
+}
+
+function filter(basedon) {
+  hideList();
+  let filterObj = JSON.parse(JSON.stringify(toDoObj));
+  let taskcontainer = document.getElementById("taskcontainer");
+  taskcontainer.innerHTML = "";
+  taskcontainer.style.display = "flex";
+  let showDone = false;
+  let countDone = 0;
+  let todayDate = new Date().toJSON().slice(0, 10);
+  for (let list in toDoObj) {
+    let key = Object.keys(toDoObj[list])[0];
+    for (let [task, detail] of Object.entries(toDoObj[list][key])) {
+      if (basedon == "Today" && todayDate !== detail[3])
+        delete filterObj[list][key][task];
+      if (detail[3] == "") delete filterObj[list][key][task];
+    }
+    if (!Object.keys(filterObj[list][key]).length) delete filterObj[list];
+  }
+  for (let item of filterObj) {
+    if (!item) continue;
+    let taskObj = item[Object.keys(item)[0]];
+    Object.keys(taskObj).forEach(task => {
+      let item = document.createElement("div");
+      item.setAttribute("class", "taskflex-item taskitem");
+      let check = document.createElement("input");
+      check.setAttribute("type", "checkbox");
+      check.checked = taskObj[task][0];
+      // check.setAttribute("onclick", "makeDone(event)");
+      // item.setAttribute("onclick", "expand(event,false)");
+      item.appendChild(check);
+      item.appendChild(document.createTextNode(task));
+      taskcontainer.appendChild(item);
+      if (check.checked) {
+        showDone = true;
+        countDone++;
+      }
+      item.style.display = check.checked ? "none" : "flex";
+      if (showAll) item.style.display = "flex";
+    });
+  }
+  document.getElementById("donetaskbar").style.display = showDone
+    ? "flex"
+    : "none";
+  document.getElementById("showDone").innerHTML = "Done (" + countDone + ")";
+  console.log(toDoObj);
 }
