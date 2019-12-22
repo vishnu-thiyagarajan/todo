@@ -6,7 +6,7 @@ let showAll = false;
 let currentList, taskobj, taskid, basedon;
 let flexitem = document.getElementById("flexitem");
 let detailitem = document.getElementById("detailitem");
-let toDoObj = [];
+let toDoObj = "todo" in localStorage ? JSON.parse(window.localStorage.getItem('todo')) : [];
 window.onload = contentList();
 function addNewList() {
   var addNewList = document.getElementById("myForm");
@@ -193,13 +193,13 @@ function highlight(event) {
 }
 
 function hideList() {
-  if (basedon == "Today") {
+  if (basedon == "Today" && !currentList) {
     document
       .querySelector(".btn-group #todaytab")
       .setAttribute("class", "active");
     document.querySelector(".btn-group #scheduledtab").removeAttribute("class");
   }
-  if (basedon == "Scheduled") {
+  if (basedon == "Scheduled" && !currentList) {
     document.querySelector(".btn-group #todaytab").removeAttribute("class");
     document
       .querySelector(".btn-group #scheduledtab")
@@ -213,6 +213,8 @@ function hideList() {
 }
 
 function goHome() {
+  document.querySelector(".btn-group #todaytab").removeAttribute("class");
+  document.querySelector(".btn-group #scheduledtab").removeAttribute("class");
   document
     .querySelector(".btn-group #liststab")
     .setAttribute("class", "active");
@@ -522,3 +524,4 @@ function clearFilterCompleted() {
   }
   filter();
 }
+window.addEventListener('click', ()=>window.localStorage.setItem('todo', JSON.stringify(toDoObj)), false)
