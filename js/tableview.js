@@ -2,8 +2,9 @@ let selectState = true
 let checkedCount = 0
 let displayObj = []
 let filteredObj = []
+let taskobj = []
 let showAll = false
-let currentList, taskobj, taskid, basedon
+let currentList, taskid, basedon
 const flexitem = document.getElementById('flexitem')
 const detailitem = document.getElementById('detailitem')
 let toDoObj = []
@@ -29,7 +30,7 @@ function addNewList () {
 function enableCrt () {
   var listName = document.getElementById('listname')
   var crtListBtn = document.getElementById('crtlist')
-  crtListBtn.disabled = listName.value == ''
+  crtListBtn.disabled = listName.value === ''
 }
 
 function closeForm () {
@@ -155,7 +156,7 @@ function rename (event) {
   var listid = displayObj[i].id
   displayObj[i].listname = newName
   for (const index in toDoObj) {
-    if (toDoObj[index].id == listid) {
+    if (toDoObj[index].id === listid) {
       toDoObj[index].listname = newName
       break
     }
@@ -174,9 +175,9 @@ function closeRename (event) {
 
 function attachSearch () {
   const searchBar = document.getElementById('searchBar')
-  searchBar.style.display = searchBar.style.display == 'flex' ? 'none' : 'flex'
-  if (searchBar.style.display == 'none') contentList()
-  if (searchBar.style.display == 'flex') {
+  searchBar.style.display = searchBar.style.display === 'flex' ? 'none' : 'flex'
+  if (searchBar.style.display === 'none') contentList()
+  if (searchBar.style.display === 'flex') {
     var srchBar = document.getElementById('srchBar')
     srchBar.value = ''
     srchBar.focus()
@@ -195,18 +196,18 @@ function highlight (event) {
   currentList = null
   taskobj = null
   basedon = event.target.innerText
-  if (basedon == 'Lists') goHome()
-  if (basedon != 'Lists') filter()
+  if (basedon === 'Lists') goHome()
+  if (basedon !== 'Lists') filter()
 }
 
 function hideList () {
-  if (basedon == 'Today' && !currentList) {
+  if (basedon === 'Today' && !currentList) {
     document
       .querySelector('.btn-group #todaytab')
       .setAttribute('class', 'active')
     document.querySelector('.btn-group #scheduledtab').removeAttribute('class')
   }
-  if (basedon == 'Scheduled' && !currentList) {
+  if (basedon === 'Scheduled' && !currentList) {
     document.querySelector('.btn-group #todaytab').removeAttribute('class')
     document
       .querySelector('.btn-group #scheduledtab')
@@ -242,7 +243,7 @@ function openListParent (event) {
 function openList (event) {
   if (event) currentList = event.target.id
   hideList()
-  taskObj = toDoObj[currentList].taskobjs
+  const taskObj = toDoObj[currentList].taskobjs
   const taskcontainer = document.getElementById('taskcontainer')
   taskcontainer.innerHTML = ''
   detailitem.style.display = 'none'
@@ -300,7 +301,7 @@ function showDoneTask () {
 }
 
 function expand (event) {
-  if (detailitem.style.display == 'flex') return
+  if (detailitem.style.display === 'flex') return
   if (!currentList) return filterExpand(event)
   const currentTask = event.target.textContent
   const addnew = event.target
@@ -347,7 +348,7 @@ function savedetails (event) {
   openList()
 }
 
-function deleteTask () {
+function deleteTask (event) {
   if (!currentList) return deleteFilterTask(event)
   taskid = event.target.parentNode.parentNode.parentNode.previousSibling.id.slice(
     3
@@ -371,7 +372,7 @@ function addTask (event) {
 function appendTask (event) {
   if (event.keyCode !== 13) return
   const newTask = event.target.value
-  if (newTask == '') return
+  if (newTask === '') return
   taskobj = toDoObj[currentList].taskobjs
   taskobj.push({
     taskname: newTask,
@@ -388,7 +389,7 @@ function clearCompleted () {
   if (!currentList) return clearFilterCompleted()
   taskobj = toDoObj[currentList].taskobjs
   toDoObj[currentList].taskobjs = taskobj.filter(task => {
-    return task.completed == false
+    return task.completed === false
   })
   openList()
 }
@@ -398,8 +399,8 @@ function filter () {
   const todayDate = new Date().toJSON().slice(0, 10)
   for (const list of toDoObj) {
     for (const task of list.taskobjs) {
-      if (basedon == 'Today' && task.date == todayDate) { filteredObj.push([task, list]) }
-      if (basedon == 'Scheduled' && task.date != '') { filteredObj.push([task, list]) }
+      if (basedon === 'Today' && task.date === todayDate) { filteredObj.push([task, list]) }
+      if (basedon === 'Scheduled' && task.date !== '') { filteredObj.push([task, list]) }
     }
   }
   hideList()
@@ -443,7 +444,7 @@ function filter () {
 }
 
 function makeFilterDone (event) {
-  [listid, taskid] = event.target.id.split('|')
+  const [listid, taskid] = event.target.id.split('|')
   taskobj = toDoObj[listid].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   taskobj[index].completed = event.target.checked
@@ -453,7 +454,7 @@ function makeFilterDone (event) {
 
 function filterExpand (event) {
   let item = event.target
-  if (event.target.tagName == 'P') item = event.target.parentNode
+  if (event.target.tagName === 'P') item = event.target.parentNode
   const [listid, taskid] = item.id.split('|')
   const currentTask = item.childNodes[1].textContent
   const temp = item.firstChild
@@ -477,7 +478,7 @@ function filterExpand (event) {
 }
 
 function deleteFilterTask (event) {
-  [
+  const [
     listid,
     taskid
   ] = event.target.parentNode.parentNode.parentNode.previousSibling.id.split(
@@ -490,7 +491,7 @@ function deleteFilterTask (event) {
 }
 
 function saveFilterDetails (event) {
-  [
+  const [
     listid,
     taskid
   ] = event.target.parentNode.parentNode.parentNode.previousSibling.id.split(
