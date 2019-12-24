@@ -1,21 +1,23 @@
 let selectState = true
+// const url = window.location.href
 let checkedCount = 0
-let displayObj = []
+const bckend = 'http://localhost:3000/'
+let displayObj
 let filteredObj = []
 let taskobj = []
 let showAll = false
 let currentList, taskid, basedon
 const flexitem = document.getElementById('flexitem')
 const detailitem = document.getElementById('detailitem')
-let toDoObj = []
-// window.fetch('http://localhost:3000/todo')
-//   .then(data => {
-//     toDoObj = data
-//   })
-//   .catch(e => {
-//     console.log('network error')
-//   }) // "todo" in localStorage ? JSON.parse(window.localStorage.getItem('todo')) : [];
-window.onload = contentList()
+let toDoObj, rtVal
+async function load () {
+  const response = await window.fetch(bckend + 'todo')
+  toDoObj = await response.json()
+  displayObj = toDoObj.slice(0, toDoObj.length)
+  window.onload = contentList()
+}
+load()
+
 function addNewList () {
   var addNewList = document.getElementById('myForm')
   var newListBtn = document.getElementById('newlist')
@@ -39,10 +41,24 @@ function closeForm () {
   listName.value = ''
 }
 
-function createList (event) {
+// curl -d "listname=duties" -X POST http://localhost:3000/list
+async function dbReq (url, data, method) {
+  const response = await window.fetch(bckend + url, {
+    method: method,
+    body: JSON.stringify(data),
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  })
+  rtVal = await response.json()
+  return rtVal
+}
+
+async function createList (event) {
   var listName = document.getElementById('listname')
+  await dbReq('list', { listname: listName.value }, 'POST')
   var objToPush = {
-    id: toDoObj.length ? toDoObj[toDoObj.length - 1].id + 1 : 0,
+    id: rtVal,
     listname: listName.value,
     taskobjs: []
   }
@@ -56,7 +72,6 @@ function createList (event) {
 }
 
 function contentList (obj = toDoObj) {
-  if (displayObj.length === 0) displayObj = JSON.parse(JSON.stringify(toDoObj))
   const contentList = document.getElementById('contentList')
   contentList.style.display = 'flex'
   contentList.innerHTML = ''
@@ -110,6 +125,7 @@ function deleteSelected () {
   for (const check in checkboxes) {
     if (checkboxes[check].checked) toDelete.push(displayObj[check])
   }
+  dbReq('delete/' + getValue(toDelete, 'id').join(','), {}, 'DELETE')
   toDoObj = filterObj(toDoObj, toDelete, 'id')
   displayObj = filterObj(toDoObj, toDelete, 'id')
   selectList()
@@ -161,6 +177,7 @@ function rename (event) {
       break
     }
   }
+  dbReq('rename', { listname: newName, id: listid }, 'PUT')
   document.getElementById('renameForm').style.display = 'none'
   selectList()
   document.getElementById('srchBar').focus()
@@ -243,7 +260,8 @@ function openListParent (event) {
 function openList (event) {
   if (event) currentList = event.target.id
   hideList()
-  const taskObj = toDoObj[currentList].taskobjs
+  const index = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  const taskObj = toDoObj[index].taskobjs
   const taskcontainer = document.getElementById('taskcontainer')
   taskcontainer.innerHTML = ''
   detailitem.style.display = 'none'

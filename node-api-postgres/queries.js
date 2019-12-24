@@ -18,12 +18,12 @@ const getData = async (request, response) => {
         )
         data[ind].taskobjs = res2.rows
       } catch (e) {
-        console.log('unable to fetch data')
+        response.status(500).send('unable to fetch data')
       }
     }
     response.status(200).send(data)
   } catch (e) {
-    console.log('unable to fetch data')
+    response.status(500).send('unable to fetch data')
   }
 }
 // curl -d "listname=duties" -X POST http://localhost:3000/list
@@ -31,9 +31,9 @@ const createList = async (request, response) => {
   try {
     const listname = request.body.listname
     const result = await pool.query(`INSERT INTO lists (listname) VALUES ('${listname}') RETURNING id`)
-    response.status(200).send(result.rows[0].id.toString())
+    response.status(200).send([result.rows[0].id.toString()])
   } catch (error) {
-    console.log('unable to fetch data')
+    response.status(500).send(['unable to insert data'])
   }
 }
 // curl -d "listname=duty&id=11" -X PUT http://localhost:3000/rename
@@ -41,19 +41,19 @@ const updateList = async (request, response) => {
   try {
     const { listname, id } = request.body
     await pool.query(`UPDATE lists SET listname = '${listname}' WHERE id = ${id}`)
-    response.status(200).send('modified data')
+    response.status(200).send(['modified data'])
   } catch (error) {
-    console.log('unable to modify data')
+    response.status(500).send(['unable to modify data'])
   }
 }
 // curl -X DELETE http://localhost:3000/delete/11
 const deleteList = async (request, response) => {
   try {
-    const id = parseInt(request.params.id)
-    await pool.query(`DELETE FROM lists WHERE id = ${id}`)
-    response.status(200).send('data deleted')
+    const id = request.params.id
+    await pool.query(`DELETE FROM lists WHERE id IN (${id})`)
+    response.status(200).send(['data deleted'])
   } catch (error) {
-    console.log('unable to modify data')
+    response.status(500).send(['unable to delete data'])
   }
 }
 // curl -d "taskname=workout&listid=2" -X POST http://localhost:3000/task
@@ -63,7 +63,7 @@ const createTask = async (request, response) => {
     const result = await pool.query(`INSERT INTO taskobjs (taskname,listid) VALUES ('${taskname}',${listid}) RETURNING id`)
     response.status(200).send(result.rows[0].id.toString())
   } catch (error) {
-    console.log('unable to insert data')
+    response.status(500).send('unable to insert data')
   }
 }
 // curl -d "listname=duty&id=11&completed=true&notes=checkup&priority=2&date=29-12-2019" -X PUT http://localhost:3000/update
@@ -77,7 +77,7 @@ const updateTask = async (request, response) => {
                                        date = '${date}' WHERE id = ${id}`)
     response.status(200).send('modified data')
   } catch (error) {
-    console.log('unable to modify data')
+    response.status(500).send('unable to modify data')
   }
 }
 // curl -X DELETE http://localhost:3000/clear/11
@@ -87,7 +87,7 @@ const deleteTask = async (request, response) => {
     await pool.query(`DELETE FROM taskobjs WHERE id = ${id}`)
     response.status(200).send('data deleted')
   } catch (error) {
-    console.log('unable to modify data')
+    response.status(500).send('unable to delete data')
   }
 }
 module.exports = {
