@@ -1,7 +1,6 @@
 let selectState = true
-// const url = window.location.href
+const bckend = window.location.href
 let checkedCount = 0
-const bckend = 'http://localhost:3000/'
 let displayObj
 let filteredObj = []
 let taskobj = []
@@ -41,7 +40,6 @@ function closeForm () {
   listName.value = ''
 }
 
-// curl -d "listname=duties" -X POST http://localhost:3000/list
 async function dbReq (url, data, method) {
   const response = await window.fetch(bckend + url, {
     method: method,
@@ -82,7 +80,6 @@ function contentList (obj = toDoObj) {
       ? getValue(list.taskobjs, 'taskname').join('<br>')
       : 'no tasks'
     item.setAttribute('id', list.id)
-    // document.querySelector('#flexitem .overflow').setAttribute("id",list['id'])
     contentList.appendChild(item)
   }
 }
@@ -560,7 +557,7 @@ function saveFilterDetails (event) {
 
 function clearFilterCompleted () {
   const todayDate = new Date().toJSON().slice(0, 10)
-  var arr = [];
+  var arr = []
   for (const listIdx in toDoObj) {
     taskobj = toDoObj[listIdx].taskobjs
     toDoObj[listIdx].taskobjs = taskobj.filter(task => {
