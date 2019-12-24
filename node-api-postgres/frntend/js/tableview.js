@@ -47,7 +47,7 @@ async function dbReq (url, data, method) {
     method: method,
     body: JSON.stringify(data),
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     }
   })
   rtVal = await response.json()
@@ -58,7 +58,7 @@ async function createList (event) {
   var listName = document.getElementById('listname')
   await dbReq('list', { listname: listName.value }, 'POST')
   var objToPush = {
-    id: rtVal,
+    id: parseInt(rtVal[0]),
     listname: listName.value,
     taskobjs: []
   }
@@ -93,12 +93,9 @@ function getValue (fromList, getKey) {
 
 function filterObj (myArray, myFilter, key) {
   var filtered = []
+  var notneeded = getValue(myFilter, key)
   for (var arr in myArray) {
-    for (var filter in myFilter) {
-      if (myArray[arr][key] !== myFilter[filter][key]) {
-        filtered.push(myArray[arr])
-      }
-    }
+    if (!notneeded.includes(myArray[arr][key])) filtered.push(myArray[arr])
   }
   return filtered
 }
@@ -306,9 +303,11 @@ function openList (event) {
 function makeDone (event) {
   if (!currentList) return makeFilterDone(event)
   taskid = event.target.parentNode.id.slice(3)
-  taskobj = toDoObj[currentList].taskobjs
-  const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
-  taskobj[index].completed = event.target.checked
+  dbReq('taskdone', { id: taskid, completed: event.target.checked }, 'PUT')
+  const index = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  const taskobj = toDoObj[index].taskobjs
+  const tindex = getValue(taskobj, 'id').indexOf(parseInt(taskid))
+  toDoObj[index].taskobjs[tindex].completed = event.target.checked
   openList()
   event.stopPropagation()
 }
@@ -332,7 +331,8 @@ function expand (event) {
   detailitem.style.display = 'flex'
   event.target.insertAdjacentElement('afterend', detailitem)
   taskid = event.target.id.slice(3)
-  taskobj = toDoObj[currentList].taskobjs
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   document.querySelector('#detailitem textarea').value =
     taskobj[index].notes
@@ -344,10 +344,9 @@ function expand (event) {
 
 function savedetails (event) {
   if (!currentList) return saveFilterDetails(event)
-  taskid = event.target.parentNode.parentNode.parentNode.previousSibling.id.slice(
-    3
-  )
-  taskobj = toDoObj[currentList].taskobjs
+  taskid = event.target.parentNode.parentNode.parentNode.previousSibling.id.slice(3)
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   taskobj[index].notes = document.querySelector(
     '#detailitem textarea'
@@ -361,6 +360,13 @@ function savedetails (event) {
   taskobj[index].taskname = document.querySelector(
     '.taskitem input[type=text]'
   ).value
+  dbReq('update', {
+    taskname: taskobj[index].taskname,
+    id: taskobj[index].id,
+    notes: taskobj[index].notes,
+    priority: taskobj[index].priority,
+    date: taskobj[index].date
+  }, 'PUT')
   const details = document.getElementById('detailitem')
   details.style.display = 'none'
   openList()
@@ -368,11 +374,11 @@ function savedetails (event) {
 
 function deleteTask (event) {
   if (!currentList) return deleteFilterTask(event)
-  taskid = event.target.parentNode.parentNode.parentNode.previousSibling.id.slice(
-    3
-  )
-  taskobj = toDoObj[currentList].taskobjs
+  taskid = event.target.parentNode.parentNode.parentNode.previousSibling.id.slice(3)
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
+  dbReq('clear/' + taskid, {}, 'DELETE')
   taskobj.splice(index, 1)
   openList()
 }
@@ -387,28 +393,33 @@ function addTask (event) {
   text.focus()
 }
 
-function appendTask (event) {
+async function appendTask (event) {
   if (event.keyCode !== 13) return
   const newTask = event.target.value
   if (newTask === '') return
-  taskobj = toDoObj[currentList].taskobjs
-  taskobj.push({
+  const index = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  await dbReq('task', { taskname: newTask, listid: toDoObj[index].id }, 'POST')
+  toDoObj[index].taskobjs.push({
     taskname: newTask,
     completed: false,
     notes: '',
     priority: 0,
     date: '',
-    id: taskobj.length ? taskobj[taskobj.length - 1].id + 1 : 0
+    id: parseInt(rtVal[0])
   })
   openList()
 }
 
 function clearCompleted () {
   if (!currentList) return clearFilterCompleted()
-  taskobj = toDoObj[currentList].taskobjs
-  toDoObj[currentList].taskobjs = taskobj.filter(task => {
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(currentList))
+  taskobj = toDoObj[lindex].taskobjs
+  var arr = []
+  toDoObj[lindex].taskobjs = taskobj.filter(task => {
+    if (task.completed) arr.push(task.id)
     return task.completed === false
   })
+  dbReq('clear/' + arr.join(','), {}, 'DELETE')
   openList()
 }
 
@@ -463,9 +474,11 @@ function filter () {
 
 function makeFilterDone (event) {
   const [listid, taskid] = event.target.id.split('|')
-  taskobj = toDoObj[listid].taskobjs
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(listid))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   taskobj[index].completed = event.target.checked
+  dbReq('taskdone', { id: taskid, completed: event.target.checked }, 'PUT')
   filter()
   event.stopPropagation()
 }
@@ -485,7 +498,8 @@ function filterExpand (event) {
   text.focus()
   detailitem.style.display = 'flex'
   item.insertAdjacentElement('afterend', detailitem)
-  taskobj = toDoObj[listid].taskobjs
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(listid))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   document.querySelector('#detailitem textarea').value =
     taskobj[index].notes
@@ -502,8 +516,10 @@ function deleteFilterTask (event) {
   ] = event.target.parentNode.parentNode.parentNode.previousSibling.id.split(
     '|'
   )
-  taskobj = toDoObj[listid].taskobjs
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(listid))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
+  dbReq('clear/' + taskid, {}, 'DELETE')
   taskobj.splice(index, 1)
   filter()
 }
@@ -515,7 +531,8 @@ function saveFilterDetails (event) {
   ] = event.target.parentNode.parentNode.parentNode.previousSibling.id.split(
     '|'
   )
-  taskobj = toDoObj[listid].taskobjs
+  const lindex = getValue(toDoObj, 'id').indexOf(parseInt(listid))
+  taskobj = toDoObj[lindex].taskobjs
   const index = getValue(taskobj, 'id').indexOf(parseInt(taskid))
   taskobj[index].notes = document.querySelector(
     '#detailitem textarea'
@@ -529,6 +546,13 @@ function saveFilterDetails (event) {
   taskobj[index].taskname = document.querySelector(
     '.taskitem input[type=text]'
   ).value
+  dbReq('update', {
+    taskname: taskobj[index].taskname,
+    id: taskobj[index].id,
+    notes: taskobj[index].notes,
+    priority: taskobj[index].priority,
+    date: taskobj[index].date
+  }, 'PUT')
   const details = document.getElementById('detailitem')
   details.style.display = 'none'
   filter()
@@ -536,14 +560,15 @@ function saveFilterDetails (event) {
 
 function clearFilterCompleted () {
   const todayDate = new Date().toJSON().slice(0, 10)
+  var arr = [];
   for (const listIdx in toDoObj) {
     taskobj = toDoObj[listIdx].taskobjs
     toDoObj[listIdx].taskobjs = taskobj.filter(task => {
-      if (basedon === 'Today' && task.date === todayDate) { return task.completed === false }
-      if (basedon === 'Scheduled' && task.date !== '') { return task.completed === false }
+      if (basedon === 'Today' && task.date === todayDate) { arr.push(task.id); return task.completed === false }
+      if (basedon === 'Scheduled' && task.date !== '') { arr.push(task.id); return task.completed === false }
       return true
     })
   }
+  dbReq('clear/' + arr.join(','), {}, 'DELETE')
   filter()
 }
-// window.addEventListener('click', ()=>window.localStorage.setItem('todo', JSON.stringify(toDoObj)), false)
