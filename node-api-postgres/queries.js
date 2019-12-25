@@ -79,7 +79,6 @@ const taskDone = async (request, response) => {
 // curl -d "listname=duty&id=11&notes=checkup&priority=2&date=29-12-2019" -X PUT http://localhost:3000/update
 const updateTask = async (request, response) => {
   try {
-    console.log(request.body)
     const { id, taskname, notes, priority, date } = request.body
     await pool.query(`UPDATE taskobjs SET taskname = '${taskname}',
                                           notes = '${notes}',

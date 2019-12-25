@@ -1,23 +1,17 @@
 const express = require('express')
-const db = require('./queries')
+const path = require('path')
+const rootDir = path.dirname(process.mainModule.filename);
 const app = express()
 const port = 3000
+const routes = require('./admin')
 var bodyParser = require('body-parser')
-var cors = require('cors')
 
-app.use(cors())
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(express.static('frntend'))
-
+app.use(express.static(path.join(rootDir, 'frntend')))
+app.use(routes)
 app.listen(port, () => {
   console.log(`App running on port ${port}.`)
 })
-app.get('/todo', db.getData)
-app.post('/list', db.createList)
-app.put('/rename', db.updateList)
-app.delete('/delete/:id', db.deleteList)
-app.post('/task', db.createTask)
-app.put('/taskdone', db.taskDone)
-app.put('/update', db.updateTask)
-app.delete('/clear/:id', db.deleteTask)
+app.use((req, res, next) => {
+  res.status(404).sendFile(path.join(rootDir, './404.html'))
+})
